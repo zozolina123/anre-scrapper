@@ -86,6 +86,7 @@ async function scrapData() {
         })()
     } catch (err) {
         console.error(err)
+        browser.close();
         return [];
     }
 }
