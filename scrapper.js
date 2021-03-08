@@ -15,7 +15,7 @@ const data_start_aplicare = new Date().toISOString().split('T')[0];
 async function scrapData() {
     try {
         return await (async() => {
-            const browser = await puppeteer.launch({ headless: false })
+            const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
             const page = await browser.newPage()
             await page.setViewport({ width: 1366, height: 768 });
             await page.goto('https://www.anre.ro/ro/info-consumatori/comparator-de-tarife', { waitUntil: 'networkidle2' })
