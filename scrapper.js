@@ -13,11 +13,20 @@ const energie_regenerabila = '0';
 const data_start_aplicare = new Date().toISOString().split('T')[0];
 
 async function scrapData() {
-    try {
-        return await (async() => {
-            const browser = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+    const chromeOptions = {
+        headless: true,
+        defaultViewport: null,
+        args: [
+            "--incognito",
+            "--no-sandbox",
+            "--single-process",
+            "--no-zygote"
+        ],
+    };
+    return await (async() => {
+        try {
+            const browser = await puppeteer.launch(chromeOptions)
             const page = await browser.newPage()
-            await page.setViewport({ width: 1366, height: 768 });
             await page.goto('https://www.anre.ro/ro/info-consumatori/comparator-de-tarife', { waitUntil: 'networkidle2' })
             await page.waitForSelector('#consum_lunar')
             await page.waitFor(500)
@@ -31,6 +40,15 @@ async function scrapData() {
             }, data_start_aplicare)
             await page.waitForSelector('#compara');
             await page.waitFor(1500);
+            console.log('firstClick')
+            await page.click('#compara');
+            await page.$eval('#compara', el => el.click());
+            await page.waitFor(5500);
+            console.log('secondClick')
+            await page.click('#compara');
+            await page.$eval('#compara', el => el.click());
+            await page.waitFor(5500);
+            console.log('thirdClick')
             await page.click('#compara');
             await page.$eval('#compara', el => el.click());
             await page.waitForSelector('tr', { timeout: 35000 })
@@ -83,12 +101,12 @@ async function scrapData() {
             const mappedData = filteredData.map(el => mapDataToNewProperties(el));
             browser.close();
             return mappedData;
-        })()
-    } catch (err) {
-        console.error(err)
-        browser.close();
-        return [];
-    }
+        } catch (err) {
+            console.error(err)
+            browser.close()
+            return [];
+        }
+    })()
 }
 
 module.exports = { scrapData }
